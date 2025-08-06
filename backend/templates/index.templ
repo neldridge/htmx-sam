@@ -1,0 +1,7 @@
+package templates
+
+import "github.com/a-h/templ"
+
+var Index = templ.Component(func() templ.Component {
+	return Layout(templ.Text("<h1 class='text-3xl font-bold'>Hello, World!</h1>"))
+})
