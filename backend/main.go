@@ -26,8 +26,11 @@ var tableName = "ContactMessages"
 
 func handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	switch req.Path {
-	case "/":
+	case "/home":
 		return renderHTML(components.Layout("Home", components.Index()))
+
+	case "/navbar":
+		return renderHTML(components.Navbar())
 
 	case "/contacted":
 		contacted := make([]htmxtypes.ContactForm, 0)

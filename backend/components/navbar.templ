@@ -1,0 +1,16 @@
+package components
+
+templ Navbar() {
+  <nav class="navbar bg-base-100 mb-6">
+    <div class="flex-1">
+      <a class="btn btn-ghost normal-case text-xl" href="/">HTMX + SAM</a>
+    </div>
+    <div class="flex-none">
+      <ul class="menu menu-horizontal px-1">
+        <li><a href="/home" hx-get="/home" hx-target="#content">Home</a></li>
+        <li><a href="/contact" hx-get="/contact" hx-target="#content">Contact</a></li>
+        <li><a href="/contacted" hx-get="/contacted" hx-target="#content">Contacted</a></li>
+      </ul>
+    </div>
+  </nav>
+}
