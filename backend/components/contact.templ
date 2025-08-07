@@ -1,0 +1,17 @@
+// backend/templates/contact.templ
+
+package templates
+
+templ Contact() {
+    <form
+      hx-post="/contact"
+      hx-trigger="submit"
+      hx-swap="outerHTML"
+      class="flex flex-col gap-4 max-w-md"
+    >
+      <input type="text" name="name" placeholder="Name" class="input input-bordered" required />
+      <input type="email" name="email" placeholder="Email" class="input input-bordered" required />
+      <textarea name="message" class="textarea textarea-bordered" placeholder="Message" required></textarea>
+      <button type="submit" class="btn btn-primary">Send</button>
+    </form>
+}

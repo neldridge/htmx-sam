@@ -1,0 +1,61 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: HTMX Lambda DaisyUI
+Resources:
+  WebHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: bootstrap
+      Runtime: provided.al2023
+      Architectures:
+        - arm64
+      CodeUri: backend/
+      Events:
+        Root:
+          Type: Api
+          Properties:
+            Path: /
+            Method: ANY
+        Contact:
+          Type: Api
+          Properties:
+            Path: /contact
+            Method: ANY
+      Environment:
+        Variables:
+          TABLE_NAME: ContactMessages
+    Metadata:
+      BuildMethod: makefile
+
+  ContactTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ContactMessages
+      AttributeDefinitions:
+        - AttributeName: Email
+          AttributeType: S
+      KeySchema:
+        - AttributeName: Email
+          KeyType: HASH
+      BillingMode: PAYPERREQUEST
+
+  FrontendBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: htmx-lambda-frontend-bucket
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
+
+Outputs:
+  FrontendBucketName:
+    Description: "S3 bucket for frontend"
+    Value: !Ref FrontendBucket
+
+  FrontendURL:
+    Description: "Frontend S3 Website URL"
+    Value: !Sub "http://${FrontendBucket}.s3-website-${AWS::Region}.amazonaws.com"
+
+  ApiUrl:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"

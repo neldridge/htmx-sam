@@ -14,7 +14,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 
-	"github.com/neldridge/htmx-sam/backend/templates"
+	components "github.com/neldridge/htmx-sam/backend/components"
 )
 
 type ContactForm struct {
@@ -29,7 +29,8 @@ var tableName = "ContactMessages"
 func handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	switch req.Path {
 	case "/":
-		return renderHTML(templates.Index())
+		component := components.Layout("Home", components.Index())
+		return renderHTML(component)
 	case "/contact":
 		if req.HTTPMethod == "POST" {
 			var form ContactForm
@@ -52,7 +53,7 @@ func handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 			}
 			return successResponse("Message received!")
 		}
-		return renderHTML(templates.Contact())
+		return renderHTML(components.Contact())
 	default:
 		return errorResponse(http.StatusNotFound, "not found")
 	}
