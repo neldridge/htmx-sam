@@ -1,11 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
+<html data-theme="dark">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>HTMX Lambda Local</title>
+    <title>HTMX SAM Test Site</title>
+    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.6/dist/htmx.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.6.0/dist/full.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body>
-    <iframe src="http://localhost:3000/" width="100%" height="800"></iframe>
+  <body hx-ext="request" class="p-6">
+    <header id="header" hx-get="/api/navbar" hx-trigger="load"></header>
+    <main>
+      <div id="content" hx-get="/api/home" hx-trigger="load">Loading...</div>
+    </main>
   </body>
 </html>

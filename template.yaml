@@ -14,12 +14,17 @@ Resources:
         Root:
           Type: Api
           Properties:
-            Path: /
+            Path: /home
             Method: ANY
         Contacted:
           Type: Api
           Properties:
             Path: /contacted
+            Method: ANY
+        Navbar:
+          Type: Api
+          Properties:
+            Path: /navbar
             Method: ANY
         Contact:
           Type: Api
