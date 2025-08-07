@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 
 	"github.com/a-h/templ"
@@ -14,14 +14,12 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 
-	components "github.com/neldridge/htmx-sam/backend/components"
-)
+	log "github.com/sirupsen/logrus"
 
-type ContactForm struct {
-	Name    string `json:"name"`
-	Email   string `json:"email"`
-	Message string `json:"message"`
-}
+	htmxtypes "github.com/neldridge/htmx-sam/backend/types"
+
+	"github.com/neldridge/htmx-sam/backend/components"
+)
 
 var ddb *dynamodb.Client
 var tableName = "ContactMessages"
@@ -29,15 +27,43 @@ var tableName = "ContactMessages"
 func handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	switch req.Path {
 	case "/":
-		component := components.Layout("Home", components.Index())
-		return renderHTML(component)
+		return renderHTML(components.Layout("Home", components.Index()))
+
+	case "/contacted":
+		contacted := make([]htmxtypes.ContactForm, 0)
+
+		// Fetch contacts from DynamoDB
+		resp, err := ddb.Scan(ctx, &dynamodb.ScanInput{
+			TableName: &tableName,
+		})
+		if err != nil {
+			return errorResponse(http.StatusInternalServerError, "failed to fetch contacts")
+		}
+
+		for _, item := range resp.Items {
+			contact := htmxtypes.ContactForm{
+				Name:    item["Name"].(*types.AttributeValueMemberS).Value,
+				Email:   item["Email"].(*types.AttributeValueMemberS).Value,
+				Message: item["Message"].(*types.AttributeValueMemberS).Value,
+			}
+			contacted = append(contacted, contact)
+		}
+		if len(contacted) == 0 {
+			return renderHTML(components.Layout("Contacted", components.Contacted([]htmxtypes.ContactForm{})))
+		}
+		return renderHTML(components.Layout("Contacted", components.Contacted(contacted)))
+
 	case "/contact":
 		if req.HTTPMethod == "POST" {
-			var form ContactForm
-			err := json.Unmarshal([]byte(req.Body), &form)
+			var form htmxtypes.ContactForm
+
+			parsedForm, err := url.ParseQuery(req.Body)
 			if err != nil {
-				return errorResponse(http.StatusBadRequest, "invalid input")
+				return errorResponse(http.StatusBadRequest, "invalid form data")
 			}
+			form.Name = parsedForm.Get("name")
+			form.Email = parsedForm.Get("email")
+			form.Message = parsedForm.Get("message")
 
 			item := map[string]types.AttributeValue{
 				"Email":   &types.AttributeValueMemberS{Value: form.Email},
@@ -49,11 +75,13 @@ func handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 				Item:      item,
 			})
 			if err != nil {
+				log.Printf("Failed to put item: %v", err)
 				return errorResponse(http.StatusInternalServerError, "failed to save message")
 			}
 			return successResponse("Message received!")
 		}
-		return renderHTML(components.Contact())
+		return renderHTML(components.Layout("Contact us", components.Contact()))
+
 	default:
 		return errorResponse(http.StatusNotFound, "not found")
 	}

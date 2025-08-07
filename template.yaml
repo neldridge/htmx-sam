@@ -16,6 +16,11 @@ Resources:
           Properties:
             Path: /
             Method: ANY
+        Contacted:
+          Type: Api
+          Properties:
+            Path: /contacted
+            Method: ANY
         Contact:
           Type: Api
           Properties:

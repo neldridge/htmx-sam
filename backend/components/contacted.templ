@@ -1,0 +1,13 @@
+package components
+
+import "github.com/neldridge/htmx-sam/backend/types"
+
+templ Contacted(contacts []types.ContactForm) {
+    for _, contact := range contacts {
+        <div class="contact-item">
+            <h3 class="contact-name">{contact.Name}</h3>
+            <p class="contact-email">{contact.Email}</p>
+            <p class="contact-message">{contact.Message}</p>
+        </div>
+    }
+}
